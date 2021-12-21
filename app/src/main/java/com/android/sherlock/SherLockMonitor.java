@@ -38,6 +38,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  */
 public class SherLockMonitor  implements IXposedHookLoadPackage {
 
+    @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
 
         if (lpparam == null) {
@@ -62,7 +63,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用getLastKnownLocation获取了GPS地址：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -86,7 +87,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用getPrimaryClip：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -108,7 +109,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用getDeviceId(int)获取了imei：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -127,7 +128,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用getDeviceId获取了imei：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -146,7 +147,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用getSimSerialNumber：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -166,7 +167,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用getSubscriberId获取了imsi：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -188,7 +189,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用getMacAddress()获取了mac地址：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -206,7 +207,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用getHardwareAddress()获取了mac地址：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -228,7 +229,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用getRunningTasks：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -247,7 +248,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用getRunningAppProcesses：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -274,7 +275,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用getInstalledPackages：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -294,7 +295,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用queryIntentActivities：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -318,7 +319,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用queryIntentActivitiesAsUser：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -342,7 +343,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用queryIntentActivitiesAsUser(,,UserHandle)：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -367,7 +368,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用queryIntentActivityOptions：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -389,7 +390,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用getLeanbackLaunchIntentForPackage：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
@@ -412,7 +413,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log(getMethodStack());
+                        XposedBridge.log("调用queryIntentActivities：" + getMethodStack());
                         super.afterHookedMethod(param);
                     }
                 }
