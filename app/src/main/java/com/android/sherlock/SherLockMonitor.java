@@ -65,7 +65,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         hookProcesses(lpparam);
 
         //hook应用列表
-        //hookInstallList(lpparam);
+        hookInstallList(lpparam);
 
         //hook剪切板
         hookClip(lpparam);
@@ -271,24 +271,24 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         XposedBridge.log("hookProcesses");
 
         //hook
-        //XposedHelpers.findAndHookMethod(
-        //        ActivityManager.class.getName(),
-        //        lpparam.classLoader,
-        //        "getRunningTasks",
-        //        Integer.class,
-        //        new XC_MethodHook() {
-        //            @Override
-        //            protected void beforeHookedMethod(MethodHookParam param) {
-        //                XposedBridge.log("调用getRunningTasks");
-        //            }
-        //
-        //            @Override
-        //            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-        //                XposedBridge.log("调用getRunningTasks：" + getMethodStack());
-        //                super.afterHookedMethod(param);
-        //            }
-        //        }
-        //);
+        XposedHelpers.findAndHookMethod(
+                ActivityManager.class.getName(),
+                lpparam.classLoader,
+                "getRunningTasks",
+                int.class,
+                new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) {
+                        XposedBridge.log("调用getRunningTasks");
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        XposedBridge.log("调用getRunningTasks：" + getMethodStack());
+                        super.afterHookedMethod(param);
+                    }
+                }
+        );
 
         //hook
         XposedHelpers.findAndHookMethod(
@@ -318,13 +318,12 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
     private void hookInstallList(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedBridge.log("hookInstallList");
 
-        Class<?> aClass = XposedHelpers.findClass("android.app.ApplicationPackageManager", lpparam.classLoader);
-
         //hook
         XposedHelpers.findAndHookMethod(
-                aClass,
+                "android.app.ApplicationPackageManager",
+                lpparam.classLoader,
                 "getInstalledPackages",
-                Integer.class,
+                int.class,
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) {
@@ -341,10 +340,11 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
         //hook
         XposedHelpers.findAndHookMethod(
-                aClass,
+                "android.app.ApplicationPackageManager",
+                lpparam.classLoader,
                 "queryIntentActivities",
                 Intent.class,
-                Integer.class,
+                int.class,
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) {
@@ -363,11 +363,12 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
         //hook
         XposedHelpers.findAndHookMethod(
-                aClass,
+                "android.app.ApplicationPackageManager",
+                lpparam.classLoader,
                 "queryIntentActivitiesAsUser",
                 Intent.class,
-                Integer.class,
-                Integer.class,
+                int.class,
+                int.class,
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) {
@@ -386,35 +387,13 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
         //hook
         XposedHelpers.findAndHookMethod(
-                aClass,
-                "queryIntentActivitiesAsUser",
-                Intent.class,
-                Integer.class,
-                UserHandle.class,
-                new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) {
-                        XposedBridge.log("调用queryIntentActivitiesAsUser(,,UserHandle)");
-                    }
-
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log("调用queryIntentActivitiesAsUser(,,UserHandle)：" + getMethodStack());
-                        super.afterHookedMethod(param);
-                    }
-                }
-
-
-        );
-
-        //hook
-        XposedHelpers.findAndHookMethod(
-                aClass,
+                "android.app.ApplicationPackageManager",
+                lpparam.classLoader,
                 "queryIntentActivityOptions",
                 ComponentName.class,
-                Integer[].class,
-                ComponentName.class,
-                Integer.class,
+                Intent[].class,
+                Intent.class,
+                int.class,
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) {
@@ -433,7 +412,8 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
         //hook
         XposedHelpers.findAndHookMethod(
-                aClass,
+                "android.app.ApplicationPackageManager",
+                lpparam.classLoader,
                 "getLeanbackLaunchIntentForPackage",
                 String.class,
                 new XC_MethodHook() {
@@ -454,10 +434,11 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
         //hook
         XposedHelpers.findAndHookMethod(
-                aClass,
+                "android.app.ApplicationPackageManager",
+                lpparam.classLoader,
                 "queryIntentActivities",
                 Intent.class,
-                Integer.class,
+                int.class,
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) {
