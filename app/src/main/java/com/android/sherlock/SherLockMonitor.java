@@ -151,6 +151,26 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod(
                 android.telephony.TelephonyManager.class.getName(),
                 lpparam.classLoader,
+                "getImei",
+                int.class,
+                new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) {
+                        XposedBridge.log("调用getImei获取了imei");
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        XposedBridge.log("调用getImei获取了imei：" + getMethodStack());
+                        super.afterHookedMethod(param);
+                    }
+                }
+        );
+
+        //hook获取设备信息方法
+        XposedHelpers.findAndHookMethod(
+                android.telephony.TelephonyManager.class.getName(),
+                lpparam.classLoader,
                 "getDeviceId",
                 int.class,
                 new XC_MethodHook() {
