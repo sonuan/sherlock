@@ -1,20 +1,26 @@
 package com.android.sherlock;
 
+import android.Manifest;
 import android.app.ActivityManager;
+import android.app.Application;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Process;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.core.content.ContextCompat;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -48,13 +54,16 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
     public @interface Type {
         String SERIAL_NO = "SERIAL_NO";
-        String ANDROID_ID = "ANDROID_ID";
         String DEVICE_ID = "getDeviceId";
         String DEVICE_ID_INT = "getDeviceId(INT)";
         String IMEI = "IMEI";
         String SIM_SERIAL = "SIM_SERIAL";
         String IMSI = "IMSI";
+
+        String ANDROID_ID = "ANDROID_ID";
+
         String MAC = "MAC";
+
         String INSTALLS = "INSTALLS";
         String PROCESS = "PROCESS";
         String CLIP = "CLIP";
@@ -63,6 +72,8 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
     public Map<String, Long> mInvokeTimeMap = new HashMap<>();
 
+    private Context mContext;
+
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedBridge.log("Xposed hook start.");
@@ -70,7 +81,8 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         if (lpparam == null) {
             return;
         }
-
+        //获取context
+        hookContext(lpparam);
         //hook andoidId
         hookAndroidId(lpparam);
 
@@ -94,6 +106,26 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
         //hook序列号
         hookSN(lpparam);
+    }
+
+    private void hookContext(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedHelpers.findAndHookMethod(
+                Application.class.getName(),
+                lpparam.classLoader,
+                "attach",
+                Context.class,
+                new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) {
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        mContext = (Context) param.args[0];
+                        super.afterHookedMethod(param);
+                    }
+                }
+        );
     }
 
     private void hookSN(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -554,12 +586,27 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         }
         long current = System.currentTimeMillis();
         mInvokeTimeMap.put(key, current);
-        // 1秒内重复调用，则报红
+        // 1秒内重复调用，则打印日志并显示toast
         if (current - lastTime < 1000) {
-            Log.e("Xposed", packageInfo + "存在超频一秒内调用两次。调用" + method + "获取了" + type + "，堆栈：\n" + stringBuilder.toString());
+            String msg = packageInfo + "存在超频一秒内调用两次" + method + "获取" + type + "，堆栈：\n" + stringBuilder.toString();
+            Log.e("Xposed", msg);
+            Toast.makeText(mContext, msg.substring(0, 400), Toast.LENGTH_LONG).show();
+        }
+        // 针对需要「电话」权限判断的，在没有权限通过时调用则打印日志并显示toast
+        if (Type.IMEI.equals(type)
+                || Type.DEVICE_ID.equals(type)
+                || Type.DEVICE_ID_INT.equals(type)
+                || Type.SIM_SERIAL.equals(type)
+                || Type.IMSI.equals(type)
+                || Type.SERIAL_NO.equals(type)) {
+            boolean isGranted = checkPermission(mContext, Manifest.permission.READ_PHONE_STATE);
+            if (!isGranted) {
+                String msg = packageInfo + "在「电话」权限未申请时调用" + method + "获取" + type + "，堆栈：\n" + stringBuilder.toString();
+                Log.e("Xposed", msg);
+                Toast.makeText(mContext, msg.substring(0, 400), Toast.LENGTH_LONG).show();
+            }
         }
 
-        stringBuilder.append("\n");
         stringBuilder.append("package:");
         stringBuilder.append(packageInfo);
         stringBuilder.append("\n");
@@ -576,6 +623,21 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         stringBuilder.append("\n");
         stringBuilder.append("\n");
 
-        XposedBridge.log("调用" + method + "获取了" + type + "：" + stringBuilder.toString());
+        XposedBridge.log("调用" + method + "获取" + type + "：" + stringBuilder.toString());
+    }
+
+
+    /**
+     * 检测权限是否已授权
+     */
+    public static boolean checkPermission(Context context, String perm) {
+        if (context == null) {
+            Log.e("Xposed", "checkPermission: context is null.");
+            return false;
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return true;
+        }
+        return ContextCompat.checkSelfPermission(context.getApplicationContext(), perm) == PackageManager.PERMISSION_GRANTED;
     }
 }
