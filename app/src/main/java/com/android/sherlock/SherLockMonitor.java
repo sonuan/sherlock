@@ -7,6 +7,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Process;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -65,10 +66,57 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         hookProcesses(lpparam);
 
         //hook应用列表
-        hookInstallList(lpparam);
+        //hookInstallList(lpparam);
 
         //hook剪切板
         hookClip(lpparam);
+
+        //hook序列号
+        hookSN(lpparam);
+    }
+
+    private void hookSN(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedBridge.log("hookSN");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            XposedHelpers.findAndHookMethod(
+                    Build.class.getName(),
+                    lpparam.classLoader,
+                    "getSerial",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) {
+                            XposedBridge.log("调用getSerial获取了SN序列号");
+                        }
+
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            XposedBridge.log("调用getSerial获取了SN序列号：" + getMethodStack());
+                            super.afterHookedMethod(param);
+                        }
+                    }
+            );
+        }
+
+        XposedHelpers.findAndHookMethod(
+                "android.os.SystemProperties",
+                lpparam.classLoader,
+                "get",
+                String.class,
+                new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) {
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if ("ro.serialno".equals(param.args[0])) {
+                            XposedBridge.log("调用get(ro.serialno)获取了SN序列号：" + getMethodStack());
+                        }
+                        super.afterHookedMethod(param);
+                    }
+                }
+        );
     }
 
     private void hookLocation(XC_LoadPackage.LoadPackageParam lpparam) {
