@@ -68,6 +68,8 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         String PROCESS = "PROCESS";
         String CLIP = "CLIP";
         String LOCATION = "LOCATION";
+
+        String STORAGE = "STORAGE";
     }
 
     public Map<String, Long> mInvokeTimeMap = new HashMap<>();
@@ -106,6 +108,8 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
         //hook序列号
         hookSN(lpparam);
+        //hook存储权限未打开时访问文件
+        hookStorage(lpparam);
     }
 
     private void hookContext(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -556,6 +560,33 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         );
     }
 
+    private void hookStorage(XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedBridge.log("hookStorage: ");
+        XposedHelpers.findAndHookMethod(
+                "libcore.io.IoBridge",
+                lpparam.classLoader,
+                "open",
+                String.class,
+                int.class,
+                new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) {
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        String name = (String) param.args[0];
+                        if (!TextUtils.isEmpty(name) && (name.contains("storage") || name.contains("sdcard"))) {
+                            checkStoragePermission(param, "open(" + name + ")", Type.STORAGE);
+                        }
+                        super.afterHookedMethod(param);
+                    }
+                }
+
+
+        );
+    }
+
     private void getMethodStack(XC_MethodHook.MethodHookParam param, String method, @Type String type) {
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 
@@ -624,6 +655,57 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         stringBuilder.append("\n");
 
         XposedBridge.log("调用" + method + "获取" + type + "：" + stringBuilder.toString());
+    }
+
+    private void checkStoragePermission(XC_MethodHook.MethodHookParam param, String method, @Type String type) {
+        // 针对需要「存储」权限判断的，在没有权限通过时调用则打印日志并显示toast
+        boolean isGranted = checkPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE) && checkPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (isGranted) {
+            return;
+        }
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        boolean isHit = false;
+        String line;
+        String packageInfo = "";
+        for (StackTraceElement temp : stackTraceElements) {
+            line = temp.toString();
+            if (line.contains("referenceBridge")) {
+                isHit = true;
+                continue;
+            }
+            if (!isHit) {
+                continue;
+            }
+            if (TextUtils.isEmpty(packageInfo) && !line.contains("java.lang.reflect.Method.invoke")) {
+                packageInfo = line.substring(0, line.indexOf('.', line.indexOf('.') + 1));
+            }
+            stringBuilder.append(line + "\n");
+        }
+
+        String msg = packageInfo + "在「存储」权限未申请时调用" + method + "操作文件" + "，堆栈：\n" + stringBuilder.toString();
+        Log.e("Xposed", msg);
+        Toast.makeText(mContext, msg.substring(0, 400), Toast.LENGTH_LONG).show();
+
+        stringBuilder.append("package:");
+        stringBuilder.append(packageInfo);
+        stringBuilder.append("\n");
+        stringBuilder.append("pid:");
+        stringBuilder.append(Process.myPid());
+        stringBuilder.append("\n");
+        stringBuilder.append("thread id:");
+        stringBuilder.append(Thread.currentThread().getId());
+        stringBuilder.append("-");
+        stringBuilder.append(Thread.currentThread().getName());
+        stringBuilder.append("\n");
+        stringBuilder.append("result:");
+        stringBuilder.append(param.getResult());
+        stringBuilder.append("\n");
+        stringBuilder.append("\n");
+
+        XposedBridge.log("调用" + method + "操作文件" + "：" + stringBuilder.toString());
     }
 
 
