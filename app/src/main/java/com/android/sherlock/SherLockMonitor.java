@@ -612,10 +612,11 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
             if (!isHit) {
                 continue;
             }
-            if (TextUtils.isEmpty(packageInfo) && !line.contains("java.lang.reflect.Method.invoke")) {
+            if (TextUtils.isEmpty(packageInfo) && !line.contains("java.lang.reflect.Method.invoke") && !line.contains("android.telephony.TelephonyManager")) {
                 packageInfo = line.substring(0, line.indexOf('.', line.indexOf('.') + 1));
             }
-            stringBuilder.append(line + "\n");
+            stringBuilder.append(line);
+            stringBuilder.append("\n");
         }
 
         String key = type + "-" + packageInfo;
@@ -688,10 +689,11 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
             if (!isHit) {
                 continue;
             }
-            if (TextUtils.isEmpty(packageInfo) && !line.contains("java.lang.reflect.Method.invoke")) {
+            if (TextUtils.isEmpty(packageInfo) && !line.contains("java.lang.reflect.Method.invoke") && !line.contains("android.telephony.TelephonyManager")) {
                 packageInfo = line.substring(0, line.indexOf('.', line.indexOf('.') + 1));
             }
-            stringBuilder.append(line + "\n");
+            stringBuilder.append(line);
+            stringBuilder.append("\n");
         }
 
         String msg = packageInfo + "在「存储」权限未申请时调用" + method + "操作文件" + "，堆栈：\n" + stringBuilder.toString();
