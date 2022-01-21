@@ -76,6 +76,8 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
     private Context mContext;
 
+    private boolean isHooked = false;
+
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedBridge.log("Xposed hook start.");
@@ -83,6 +85,10 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         if (lpparam == null) {
             return;
         }
+        if (isHooked) {
+            return;
+        }
+
         //获取context
         hookContext(lpparam);
         //hook andoidId
@@ -110,6 +116,8 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         hookSN(lpparam);
         //hook存储权限未打开时访问文件
         hookStorage(lpparam);
+
+        isHooked = true;
     }
 
     private void hookContext(XC_LoadPackage.LoadPackageParam lpparam) {
