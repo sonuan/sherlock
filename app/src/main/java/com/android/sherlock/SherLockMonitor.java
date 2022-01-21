@@ -615,28 +615,6 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         if (lastTime == null) {
             lastTime = 0L;
         }
-        long current = System.currentTimeMillis();
-        mInvokeTimeMap.put(key, current);
-        // 1秒内重复调用，则打印日志并显示toast
-        if (current - lastTime < 1000) {
-            String msg = packageInfo + "存在超频一秒内调用两次" + method + "获取" + type + "，堆栈：\n" + stringBuilder.toString();
-            Log.e("Xposed", msg);
-            Toast.makeText(mContext, msg.substring(0, 400), Toast.LENGTH_LONG).show();
-        }
-        // 针对需要「电话」权限判断的，在没有权限通过时调用则打印日志并显示toast
-        if (Type.IMEI.equals(type)
-                || Type.DEVICE_ID.equals(type)
-                || Type.DEVICE_ID_INT.equals(type)
-                || Type.SIM_SERIAL.equals(type)
-                || Type.IMSI.equals(type)
-                || Type.SERIAL_NO.equals(type)) {
-            boolean isGranted = checkPermission(mContext, Manifest.permission.READ_PHONE_STATE);
-            if (!isGranted) {
-                String msg = packageInfo + "在「电话」权限未申请时调用" + method + "获取" + type + "，堆栈：\n" + stringBuilder.toString();
-                Log.e("Xposed", msg);
-                Toast.makeText(mContext, msg.substring(0, 400), Toast.LENGTH_LONG).show();
-            }
-        }
 
         stringBuilder.append("package:");
         stringBuilder.append(packageInfo);
@@ -655,6 +633,29 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         stringBuilder.append("\n");
 
         XposedBridge.log("调用" + method + "获取" + type + "：" + stringBuilder.toString());
+
+        long current = System.currentTimeMillis();
+        mInvokeTimeMap.put(key, current);
+        // 1秒内重复调用，则打印日志并显示toast
+        if (current - lastTime < 1000) {
+            String msg = packageInfo + "存在超频一秒内调用两次" + method + "获取" + type + "，堆栈：\n" + stringBuilder.toString();
+            Log.e("Xposed", msg);
+            Toast.makeText(mContext, msg.substring(0, Math.min(400, msg.length())), Toast.LENGTH_LONG).show();
+        }
+        // 针对需要「电话」权限判断的，在没有权限通过时调用则打印日志并显示toast
+        if (Type.IMEI.equals(type)
+                || Type.DEVICE_ID.equals(type)
+                || Type.DEVICE_ID_INT.equals(type)
+                || Type.SIM_SERIAL.equals(type)
+                || Type.IMSI.equals(type)
+                || Type.SERIAL_NO.equals(type)) {
+            boolean isGranted = checkPermission(mContext, Manifest.permission.READ_PHONE_STATE);
+            if (!isGranted) {
+                String msg = packageInfo + "在「电话」权限未申请时调用" + method + "获取" + type + "，堆栈：\n" + stringBuilder.toString();
+                Log.e("Xposed", msg);
+                Toast.makeText(mContext, msg.substring(0, Math.min(400, msg.length())), Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     private void checkStoragePermission(XC_MethodHook.MethodHookParam param, String method, @Type String type) {
