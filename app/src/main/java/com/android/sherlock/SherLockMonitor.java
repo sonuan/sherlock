@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Looper;
 import android.os.Process;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -107,7 +108,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         hookProcesses(lpparam);
 
         //hook应用列表
-        //hookInstallList(lpparam);
+        hookInstallList(lpparam);
 
         //hook剪切板
         hookClip(lpparam);
@@ -545,27 +546,6 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
         );
 
-        //hook
-        XposedHelpers.findAndHookMethod(
-                "android.app.ApplicationPackageManager",
-                lpparam.classLoader,
-                "queryIntentActivities",
-                Intent.class,
-                int.class,
-                new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) {
-                    }
-
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        getMethodStack(param, "queryIntentActivities", Type.INSTALLS);
-                        super.afterHookedMethod(param);
-                    }
-                }
-
-
-        );
     }
 
     private void hookStorage(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -649,7 +629,9 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         if (current - lastTime < 1000) {
             String msg = packageInfo + "存在超频一秒内调用两次" + method + "获取" + type + "，堆栈：\n" + stringBuilder.toString();
             Log.e("Xposed", msg);
-            Toast.makeText(mContext, msg.substring(0, Math.min(400, msg.length())), Toast.LENGTH_LONG).show();
+            if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+                Toast.makeText(mContext, msg.substring(0, Math.min(400, msg.length())), Toast.LENGTH_LONG).show();
+            }
         }
         // 针对需要「电话」权限判断的，在没有权限通过时调用则打印日志并显示toast
         if (Type.IMEI.equals(type)
@@ -662,7 +644,9 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
             if (!isGranted) {
                 String msg = packageInfo + "在「电话」权限未申请时调用" + method + "获取" + type + "，堆栈：\n" + stringBuilder.toString();
                 Log.e("Xposed", msg);
-                Toast.makeText(mContext, msg.substring(0, Math.min(400, msg.length())), Toast.LENGTH_LONG).show();
+                if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+                    Toast.makeText(mContext, msg.substring(0, Math.min(400, msg.length())), Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
@@ -698,7 +682,10 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
         String msg = packageInfo + "在「存储」权限未申请时调用" + method + "操作文件" + "，堆栈：\n" + stringBuilder.toString();
         Log.e("Xposed", msg);
-        Toast.makeText(mContext, msg.substring(0, 400), Toast.LENGTH_LONG).show();
+
+        if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+            Toast.makeText(mContext, msg.substring(0, 400), Toast.LENGTH_LONG).show();
+        }
 
         stringBuilder.append("package:");
         stringBuilder.append(packageInfo);
