@@ -18,10 +18,16 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import androidx.core.content.ContextCompat;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -52,6 +58,12 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  */
 public class SherLockMonitor  implements IXposedHookLoadPackage {
 
+    private static final String TAG = "XPosedMonitor";
+    /**
+     * 行为记录保存的路径
+     */
+    private File mCacheDir;
+
 
     public @interface Type {
         String SERIAL_NO = "SERIAL_NO";
@@ -74,6 +86,33 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
     }
 
     public Map<String, Long> mInvokeTimeMap = new HashMap<>();
+
+    /**
+     * 行为日志
+     */
+    private JSONArray mActionArray = new JSONArray();
+
+    /**
+     * 日志类型
+     */
+    public @interface ActionLogType {
+        /**
+         * 默认
+         */
+        String DEFAULT = "DEFAULT";
+        /**
+         * 一秒内调用次数大于1
+         */
+        String LIMIT = "LIMIT";
+        /**
+         * 无设备权限，调用高危权限
+         */
+        String NO_PHONE = "NO_PHONE";
+        /**
+         * 无存储权限，调用文件系统存储
+         */
+        String NO_STORAGE = "NO_STORAGE";
+    }
 
     private Context mContext;
 
@@ -135,6 +174,8 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         mContext = (Context) param.args[0];
+                        Log.i(TAG, "afterHookedMethod: " + mContext.getFilesDir());
+                        mCacheDir = new File(mContext.getFilesDir(), "privacy_check");
                         super.afterHookedMethod(param);
                     }
                 }
@@ -621,7 +662,9 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         stringBuilder.append("\n");
         stringBuilder.append("\n");
 
-        XposedBridge.log("调用" + method + "获取" + type + "：" + stringBuilder.toString());
+        String text = "调用" + method + "获取" + type + "：\n" + stringBuilder.toString();
+        XposedBridge.log(text);
+        putToFile(ActionLogType.DEFAULT, type, text);
 
         long current = System.currentTimeMillis();
         mInvokeTimeMap.put(key, current);
@@ -629,6 +672,8 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         if (current - lastTime < 1000) {
             String msg = packageInfo + "存在超频一秒内调用两次" + method + "获取" + type + "，堆栈：\n" + stringBuilder.toString();
             Log.e("Xposed", msg);
+            putToFile(ActionLogType.LIMIT, type, msg);
+
             if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
                 Toast.makeText(mContext, msg.substring(0, Math.min(400, msg.length())), Toast.LENGTH_LONG).show();
             }
@@ -644,6 +689,8 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
             if (!isGranted) {
                 String msg = packageInfo + "在「电话」权限未申请时调用" + method + "获取" + type + "，堆栈：\n" + stringBuilder.toString();
                 Log.e("Xposed", msg);
+                putToFile(ActionLogType.NO_PHONE, type, msg);
+
                 if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
                     Toast.makeText(mContext, msg.substring(0, Math.min(400, msg.length())), Toast.LENGTH_LONG).show();
                 }
@@ -682,6 +729,8 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
         String msg = packageInfo + "在「存储」权限未申请时调用" + method + "操作文件" + "，堆栈：\n" + stringBuilder.toString();
         Log.e("Xposed", msg);
+        putToFile(ActionLogType.NO_STORAGE, type, msg);
+
 
         if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
             Toast.makeText(mContext, msg.substring(0, 400), Toast.LENGTH_LONG).show();
@@ -719,5 +768,24 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
             return true;
         }
         return ContextCompat.checkSelfPermission(context.getApplicationContext(), perm) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * 行为内容保存到文件中
+     * @param type
+     * @param text
+     */
+    public void putToFile(@ActionLogType String logType, @Type String type, String text) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.putOpt("time", System.currentTimeMillis());
+            jsonObject.putOpt("type", logType);
+            jsonObject.putOpt("action_type", type);
+            jsonObject.putOpt("action_stack", text);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mActionArray.put(jsonObject);
+        ACache.get(mCacheDir).put("AppPrivacyAction", mActionArray);
     }
 }
