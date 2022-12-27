@@ -106,28 +106,39 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
         spinner.setAdapter(spinnerAdapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String keywords = array[position];
-                // 全部
-                if (ALL.equals(keywords)) {
-                    mCurrentList = mAllList;
-                } else if (mAllList != null) {
-                    List<Object> list = new ArrayList<>();
-                    JSONObject jsonObject;
-                    String actionType;
-                    for (Object object : mAllList) {
-                        jsonObject = (JSONObject) object;
-                        actionType = jsonObject.optString("action_type");
-                        // 匹配关键字
-                        if (TextUtils.equals(keywords, actionType)) {
-                            list.add(object);
+            public void onItemSelected(AdapterView<?> parent, View view, final int position, long id) {
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String keywords = array[position];
+                        // 全部
+                        if (ALL.equals(keywords)) {
+                            mCurrentList = mAllList;
+                        } else if (mAllList != null) {
+                            List<Object> list = new ArrayList<>();
+                            JSONObject jsonObject;
+                            String actionType;
+                            for (Object object : mAllList) {
+                                jsonObject = (JSONObject) object;
+                                actionType = jsonObject.optString("action_type");
+                                // 匹配关键字
+                                if (TextUtils.equals(keywords, actionType)) {
+                                    list.add(object);
+                                }
+                            }
+                            mCurrentList = list;
+                        } else {
+                            mCurrentList = null;
                         }
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mRecyclerView.getAdapter().notifyDataSetChanged();
+                            }
+                        });
                     }
-                    mCurrentList = list;
-                } else {
-                    mCurrentList = null;
-                }
-                mRecyclerView.getAdapter().notifyDataSetChanged();
+                }).start();
             }
 
             @Override

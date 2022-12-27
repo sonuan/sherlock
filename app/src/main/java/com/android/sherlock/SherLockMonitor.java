@@ -125,9 +125,11 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedBridge.log("Xposed hook start. packageName: " + lpparam.packageName + ", processName: " + lpparam.processName);
 
-        if (lpparam == null) {
+        // 排除插件自己hook自己
+        if ("hb.sherlock".equals(lpparam.packageName)) {
             return;
         }
+
         if (isHooked) {
             return;
         }
