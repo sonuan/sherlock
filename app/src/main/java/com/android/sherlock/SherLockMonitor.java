@@ -1,6 +1,7 @@
 package com.android.sherlock;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.ClipboardManager;
@@ -11,6 +12,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Looper;
 import android.os.Process;
 import android.provider.Settings;
@@ -22,6 +24,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import org.json.JSONArray;
@@ -173,7 +177,46 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        mContext = (Context) param.args[0];
+                        Log.i(TAG, "afterHookedMethod: " + param.thisObject);
+                        Application application = (Application) param.thisObject;
+                        application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+                            @Override
+                            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+                                FloatingViewUtils.install(activity);
+
+                            }
+
+                            @Override
+                            public void onActivityStarted(@NonNull Activity activity) {
+
+                            }
+
+                            @Override
+                            public void onActivityResumed(@NonNull Activity activity) {
+                                FloatingViewUtils.showFloat(activity);
+                            }
+
+                            @Override
+                            public void onActivityPaused(@NonNull Activity activity) {
+
+                            }
+
+                            @Override
+                            public void onActivityStopped(@NonNull Activity activity) {
+
+                            }
+
+                            @Override
+                            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+
+                            }
+
+                            @Override
+                            public void onActivityDestroyed(@NonNull Activity activity) {
+
+                            }
+                        });
+                        mContext = application;
                         Log.i(TAG, "afterHookedMethod: " + mContext.getFilesDir());
                         mCacheDir = new File(mContext.getFilesDir(), "privacy_check");
                         super.afterHookedMethod(param);
