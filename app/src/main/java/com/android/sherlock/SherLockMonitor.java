@@ -124,7 +124,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
-        XposedBridge.log("Xposed hook start.");
+        XposedBridge.log("Xposed hook start. packageName: " + lpparam.packageName + ", processName: " + lpparam.processName);
 
         if (lpparam == null) {
             return;
@@ -135,6 +135,10 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
         //获取context
         hookContext(lpparam);
+
+        //hook App防护工具，使其不弹窗
+        hookAnti(lpparam);
+
         //hook andoidId
         hookAndroidId(lpparam);
 
@@ -219,6 +223,33 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
                         mContext = application;
                         Log.i(TAG, "afterHookedMethod: " + mContext.getFilesDir());
                         mCacheDir = new File(mContext.getFilesDir(), "privacy_check");
+                        super.afterHookedMethod(param);
+                    }
+                }
+        );
+    }
+
+    /**
+     * hook App防护工具，使其不弹窗
+     * @param lpparam
+     */
+    private void hookAnti(final XC_LoadPackage.LoadPackageParam lpparam) {
+        XposedBridge.log("hookAnti");
+
+        XposedHelpers.findAndHookMethod(
+                "cn.taqu.lib.base.utils.AppAntiUtils",
+                lpparam.classLoader,
+                "initAnti",
+                new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) {
+                        // 阻止弹窗
+                        final Class<?> clazz = XposedHelpers.findClass("cn.taqu.lib.base.utils.AppAntiUtils", lpparam.classLoader);
+                        XposedHelpers.setStaticBooleanField(clazz, "sInjectDialogShown", true);
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         super.afterHookedMethod(param);
                     }
                 }
