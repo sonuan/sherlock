@@ -826,7 +826,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
             jsonObject.putOpt("action_type", type);
             jsonObject.putOpt("action_stack", text);
             // 按时间倒序
-            mActionArray.put(0, jsonObject);
+            mActionArray.put(jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
         }

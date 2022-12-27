@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -38,7 +39,7 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setClassName("com.android.sherlock", PrivacyCheckResultActivity.class.getName());
         intent.putExtra("cacheDir", cacheDir);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(intent);
     }
 
@@ -46,9 +47,12 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_privacy_check_result);
+        getSupportActionBar().hide();
 
         mRecyclerView = findViewById(R.id.recyclerView);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        LinearLayoutManager layout = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        layout.setStackFromEnd(true);
+        mRecyclerView.setLayoutManager(layout);
         mRecyclerView.setAdapter(new RecyclerView.Adapter<ActionViewHolder>() {
             @NonNull
             @Override
@@ -64,6 +68,13 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
             @Override
             public int getItemCount() {
                 return mList == null ? 0 : mList.size();
+            }
+        });
+
+        findViewById(R.id.tvRefresh).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadData();
             }
         });
 
