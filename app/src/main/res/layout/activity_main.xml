@@ -7,9 +7,11 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/tvInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="XPosed模块\n请在VirtualXposed中安装该模块\n地址：https://git.internal.taqu.cn/android/sherlock"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

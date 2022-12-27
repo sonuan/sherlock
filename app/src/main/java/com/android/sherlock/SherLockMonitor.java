@@ -193,7 +193,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                             @Override
                             public void onActivityResumed(@NonNull Activity activity) {
-                                FloatingViewUtils.showFloat(activity);
+                                FloatingViewUtils.showFloat(activity, mCacheDir);
                             }
 
                             @Override
@@ -825,10 +825,11 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
             jsonObject.putOpt("type", logType);
             jsonObject.putOpt("action_type", type);
             jsonObject.putOpt("action_stack", text);
+            // 按时间倒序
+            mActionArray.put(0, jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        mActionArray.put(jsonObject);
         ACache.get(mCacheDir).put("AppPrivacyAction", mActionArray);
     }
 }

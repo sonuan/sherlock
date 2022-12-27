@@ -15,7 +15,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -23,6 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -40,6 +40,7 @@ public class FloatingViewUtils {
 
     private WindowManager windowManager;
     private View floatView;
+    private File mCacheDir;
 
     public static void install(Activity activity) {
         View decorView = activity.getWindow().getDecorView();
@@ -51,10 +52,11 @@ public class FloatingViewUtils {
         }
     }
 
-    public static void showFloat(Activity activity) {
+    public static void showFloat(Activity activity, File cacheDir) {
         View decorView = activity.getWindow().getDecorView();
         Object tag = decorView.getTag(R.id.float_layout);
         if (tag instanceof FloatingViewUtils) {
+            ((FloatingViewUtils) tag).mCacheDir = cacheDir;
             ((FloatingViewUtils) tag).checkFloatPermission(activity);
         }
     }
@@ -280,7 +282,8 @@ public class FloatingViewUtils {
                             //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             //v.getContext().startActivity(intent);
                             //
-                            TestActivity.launch(v.getContext());
+
+                            PrivacyCheckResultActivity.launch(v.getContext(), mCacheDir.getAbsolutePath());
 
                         } catch (Exception e) {
                             e.printStackTrace();
