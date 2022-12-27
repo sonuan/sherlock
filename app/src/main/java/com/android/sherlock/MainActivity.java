@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import hb.sherlock.R;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override

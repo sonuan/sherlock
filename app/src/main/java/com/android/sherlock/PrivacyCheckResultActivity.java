@@ -14,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.Window;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -27,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import hb.sherlock.R;
+
 /**
  * 隐私合规结果页面
  */
@@ -37,7 +38,7 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
 
     public static void launch(Context context, String cacheDir) {
         Intent intent = new Intent();
-        intent.setClassName("com.android.sherlock", PrivacyCheckResultActivity.class.getName());
+        intent.setClassName("hb.sherlock", PrivacyCheckResultActivity.class.getName());
         intent.putExtra("cacheDir", cacheDir);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(intent);
@@ -50,7 +51,7 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
         mRecyclerView = findViewById(R.id.recyclerView);
-        LinearLayoutManager layout = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager layout = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true);
         layout.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(layout);
         mRecyclerView.setAdapter(new RecyclerView.Adapter<ActionViewHolder>() {
