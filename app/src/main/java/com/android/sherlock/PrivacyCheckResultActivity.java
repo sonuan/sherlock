@@ -14,6 +14,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -23,6 +26,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +37,8 @@ import hb.sherlock.R;
  */
 public class PrivacyCheckResultActivity extends AppCompatActivity {
 
-    private List<Object> mList;
+    private List<Object> mCurrentList;
+    private List<Object> mAllList;
     private RecyclerView mRecyclerView;
 
     public static void launch(Context context, String cacheDir) {
@@ -63,12 +68,12 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
 
             @Override
             public void onBindViewHolder(@NonNull ActionViewHolder holder, int position) {
-                holder.onBindView((JSONObject) mList.get(position));
+                holder.onBindView((JSONObject) mCurrentList.get(position));
             }
 
             @Override
             public int getItemCount() {
-                return mList == null ? 0 : mList.size();
+                return mCurrentList == null ? 0 : mCurrentList.size();
             }
         });
 
@@ -76,6 +81,58 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 loadData();
+            }
+        });
+
+        final String ALL = "全部类型";
+        Spinner spinner = findViewById(R.id.spinner);
+        final String[] array = new String[]{
+                ALL,
+                SherLockMonitor.Type.IMEI,
+                SherLockMonitor.Type.IMSI,
+                SherLockMonitor.Type.ANDROID_ID,
+                SherLockMonitor.Type.DEVICE_ID,
+                SherLockMonitor.Type.MAC,
+                SherLockMonitor.Type.SERIAL_NO,
+                SherLockMonitor.Type.SIM_SERIAL,
+                SherLockMonitor.Type.STORAGE,
+                SherLockMonitor.Type.INSTALLS,
+                SherLockMonitor.Type.CLIP,
+                SherLockMonitor.Type.PROCESS,
+                SherLockMonitor.Type.LOCATION,
+        };
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, R.layout.privacy_check_result_filter_item, array);
+        spinnerAdapter.setDropDownViewResource(R.layout.privacy_check_result_filter_dropdown);
+        spinner.setAdapter(spinnerAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String keywords = array[position];
+                // 全部
+                if (ALL.equals(keywords)) {
+                    mCurrentList = mAllList;
+                } else if (mAllList != null) {
+                    List<Object> list = new ArrayList<>();
+                    JSONObject jsonObject;
+                    String actionType;
+                    for (Object object : mAllList) {
+                        jsonObject = (JSONObject) object;
+                        actionType = jsonObject.optString("action_type");
+                        // 匹配关键字
+                        if (TextUtils.equals(keywords, actionType)) {
+                            list.add(object);
+                        }
+                    }
+                    mCurrentList = list;
+                } else {
+                    mCurrentList = null;
+                }
+                mRecyclerView.getAdapter().notifyDataSetChanged();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
@@ -96,7 +153,8 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
                 valuesField.setAccessible(true);
                 List<Object> list = (List<Object>) valuesField.get(actionArray);
 
-                mList = list;
+                mCurrentList = list;
+                mAllList = mCurrentList;
                 mRecyclerView.getAdapter().notifyDataSetChanged();
             }
 

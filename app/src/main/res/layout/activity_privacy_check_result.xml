@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".PrivacyCheckResultActivity">
+    android:layout_height="match_parent">
 
     <FrameLayout
         android:id="@+id/llTitle"
@@ -26,6 +25,16 @@
             android:textSize="20sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:background="@drawable/privacy_check_result_filter_item_bg"
+            android:gravity="right"
+            android:layout_marginRight="60dp"
+            />
 
         <TextView
             android:id="@+id/tvRefresh"

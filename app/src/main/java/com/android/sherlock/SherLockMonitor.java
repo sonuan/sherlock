@@ -71,8 +71,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
     public @interface Type {
         String SERIAL_NO = "SERIAL_NO";
-        String DEVICE_ID = "getDeviceId";
-        String DEVICE_ID_INT = "getDeviceId(INT)";
+        String DEVICE_ID = "DEVICE_ID";
         String IMEI = "IMEI";
         String SIM_SERIAL = "SIM_SERIAL";
         String IMSI = "IMSI";
@@ -402,7 +401,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        getMethodStack(param, "getDeviceId(int)", Type.DEVICE_ID_INT);
+                        getMethodStack(param, "getDeviceId(int)", Type.DEVICE_ID);
                         super.afterHookedMethod(param);
                     }
                 }
@@ -755,7 +754,6 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         // 针对需要「电话」权限判断的，在没有权限通过时调用则打印日志并显示toast
         if (Type.IMEI.equals(type)
                 || Type.DEVICE_ID.equals(type)
-                || Type.DEVICE_ID_INT.equals(type)
                 || Type.SIM_SERIAL.equals(type)
                 || Type.IMSI.equals(type)
                 || Type.SERIAL_NO.equals(type)) {
