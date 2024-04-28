@@ -186,7 +186,6 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
         private TextView tvTypeDesc;
         private TextView tvContent;
         private TextView tvExpansion;
-        private boolean mIsExpansion = false;
 
         public static final int MAX_CONTENT_LINES = 8;
 
@@ -197,7 +196,7 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
             tvTypeDesc = itemView.findViewById(R.id.tvTypeDesc);
             tvContent = itemView.findViewById(R.id.tvContent);
             tvExpansion = itemView.findViewById(R.id.tvExpansion);
-            tvContent.getViewTreeObserver().addOnGlobalLayoutListener(new OnTvGlobalLayoutListener(tvContent));
+            //tvContent.getViewTreeObserver().addOnGlobalLayoutListener(new OnTvGlobalLayoutListener(tvContent));
             tvContent.setMaxLines(MAX_CONTENT_LINES);
         }
 
@@ -230,26 +229,11 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
                 tvTypeDesc.setText("未知");
             }
 
-            mIsExpansion = false;
-            if (!mIsExpansion) {
-                tvExpansion.setText("全部");
-            }
-            else {
-                tvExpansion.setText("收起");
-            }
-            tvExpansion.setOnClickListener(new View.OnClickListener() {
+            tvExpansion.setText("全部");
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mIsExpansion = !mIsExpansion;
-                    if (!mIsExpansion) {
-                        tvExpansion.setText("全部");
-                        tvContent.setMaxLines(MAX_CONTENT_LINES);
-                    }
-                    else {
-                        tvExpansion.setText("收起");
-                        tvContent.setMaxLines(Integer.MAX_VALUE);
-                    }
-
+                    PrivacyDetailsActivity.start(v.getContext(), actionStack);
                 }
             });
         }
@@ -364,83 +348,83 @@ public class PrivacyCheckResultActivity extends AppCompatActivity {
                         "result:[PackageInfo{be9a1aa hb.xdevtools.app}, PackageInfo{537d19b de.robv.android.xposed.installer}, PackageInfo{383a938 com.android.sherlock}, PackageInfo{5ee4d11 hb.common.app}, PackageInfo{e182e76 hb.antirisk.app}, PackageInfo{3b7ec77 eu.faircode.xlua}, PackageInfo{a6620e4 com.amaze.filemanager}, PackageInfo{fd9a94d hb.xlocation.app}, PackageInfo{fd0bc02 com.xingjiabi.shengsheng}]");
                 actionArray.put(jsonObject);
 
-                jsonObject = new JSONObject();
-                jsonObject.putOpt("time", System.currentTimeMillis());
-                jsonObject.putOpt("type", "NO_PHONE");
-                jsonObject.putOpt("action_type", "XXX");
-                jsonObject.putOpt("action_stack", "调用XXX获取XXX：\n" +
-                        "...\n" +
-                        "具体堆栈信息\n" +
-                        "...\n" +
-                        "com.lody.virtual.client.hook.delegate.InstrumentationDelegate.callActivityOnCreate(InstrumentationDelegate.java:244)\n" +
-                        "com.lody.virtual.client.hook.delegate.AppInstrumentation.callActivityOnCreate(AppInstrumentation.java:99)\n" +
-                        "android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2467)\n" +
-                        "android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2574)\n" +
-                        "android.app.ActivityThread.access$1100(ActivityThread.java:153)\n" +
-                        "android.app.ActivityThread$H.handleMessage(ActivityThread.java:1425)\n" +
-                        "android.os.Handler.dispatchMessage(Handler.java:102)\n" +
-                        "android.os.Looper.loop(Looper.java:157)\n" +
-                        "android.app.ActivityThread.main(ActivityThread.java:5684)\n" +
-                        "java.lang.reflect.Method.invoke(Native Method)\n" +
-                        "com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:746)\n" +
-                        "com.android.internal.os.ZygoteInit.main(ZygoteInit.java:636)\n" +
-                        "package:hb.devtools\n" +
-                        "pid:14365\n" +
-                        "thread id:1-main\n" +
-                        "result:[PackageInfo{be9a1aa hb.xdevtools.app}, PackageInfo{537d19b de.robv.android.xposed.installer}, PackageInfo{383a938 com.android.sherlock}, PackageInfo{5ee4d11 hb.common.app}, PackageInfo{e182e76 hb.antirisk.app}, PackageInfo{3b7ec77 eu.faircode.xlua}, PackageInfo{a6620e4 com.amaze.filemanager}, PackageInfo{fd9a94d hb.xlocation.app}, PackageInfo{fd0bc02 com.xingjiabi.shengsheng}]");
-                actionArray.put(jsonObject);
-
-                jsonObject = new JSONObject();
-                jsonObject.putOpt("time", System.currentTimeMillis());
-                jsonObject.putOpt("type", "NO_STORAGE");
-                jsonObject.putOpt("action_type", "XXX");
-                jsonObject.putOpt("action_stack", "调用XXX获取XXX：\n" +
-                        "...\n" +
-                        "具体堆栈信息\n" +
-                        "...\n" +
-                        "com.lody.virtual.client.hook.delegate.InstrumentationDelegate.callActivityOnCreate(InstrumentationDelegate.java:244)\n" +
-                        "com.lody.virtual.client.hook.delegate.AppInstrumentation.callActivityOnCreate(AppInstrumentation.java:99)\n" +
-                        "android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2467)\n" +
-                        "android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2574)\n" +
-                        "android.app.ActivityThread.access$1100(ActivityThread.java:153)\n" +
-                        "android.app.ActivityThread$H.handleMessage(ActivityThread.java:1425)\n" +
-                        "android.os.Handler.dispatchMessage(Handler.java:102)\n" +
-                        "android.os.Looper.loop(Looper.java:157)\n" +
-                        "android.app.ActivityThread.main(ActivityThread.java:5684)\n" +
-                        "java.lang.reflect.Method.invoke(Native Method)\n" +
-                        "com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:746)\n" +
-                        "com.android.internal.os.ZygoteInit.main(ZygoteInit.java:636)\n" +
-                        "package:hb.devtools\n" +
-                        "pid:14365\n" +
-                        "thread id:1-main\n" +
-                        "result:[PackageInfo{be9a1aa hb.xdevtools.app}, PackageInfo{537d19b de.robv.android.xposed.installer}, PackageInfo{383a938 com.android.sherlock}, PackageInfo{5ee4d11 hb.common.app}, PackageInfo{e182e76 hb.antirisk.app}, PackageInfo{3b7ec77 eu.faircode.xlua}, PackageInfo{a6620e4 com.amaze.filemanager}, PackageInfo{fd9a94d hb.xlocation.app}, PackageInfo{fd0bc02 com.xingjiabi.shengsheng}]");
-                actionArray.put(jsonObject);
-
-                jsonObject = new JSONObject();
-                jsonObject.putOpt("time", System.currentTimeMillis());
-                jsonObject.putOpt("type", "LIMIT");
-                jsonObject.putOpt("action_type", "XXX");
-                jsonObject.putOpt("action_stack", "调用XXX获取XXX：\n" +
-                        "...\n" +
-                        "具体堆栈信息\n" +
-                        "...\n" +
-                        "com.lody.virtual.client.hook.delegate.InstrumentationDelegate.callActivityOnCreate(InstrumentationDelegate.java:244)\n" +
-                        "com.lody.virtual.client.hook.delegate.AppInstrumentation.callActivityOnCreate(AppInstrumentation.java:99)\n" +
-                        "android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2467)\n" +
-                        "android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2574)\n" +
-                        "android.app.ActivityThread.access$1100(ActivityThread.java:153)\n" +
-                        "android.app.ActivityThread$H.handleMessage(ActivityThread.java:1425)\n" +
-                        "android.os.Handler.dispatchMessage(Handler.java:102)\n" +
-                        "android.os.Looper.loop(Looper.java:157)\n" +
-                        "android.app.ActivityThread.main(ActivityThread.java:5684)\n" +
-                        "java.lang.reflect.Method.invoke(Native Method)\n" +
-                        "com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:746)\n" +
-                        "com.android.internal.os.ZygoteInit.main(ZygoteInit.java:636)\n" +
-                        "package:hb.devtools\n" +
-                        "pid:14365\n" +
-                        "thread id:1-main\n" +
-                        "result:[PackageInfo{be9a1aa hb.xdevtools.app}, PackageInfo{537d19b de.robv.android.xposed.installer}, PackageInfo{383a938 com.android.sherlock}, PackageInfo{5ee4d11 hb.common.app}, PackageInfo{e182e76 hb.antirisk.app}, PackageInfo{3b7ec77 eu.faircode.xlua}, PackageInfo{a6620e4 com.amaze.filemanager}, PackageInfo{fd9a94d hb.xlocation.app}, PackageInfo{fd0bc02 com.xingjiabi.shengsheng}]");
-                actionArray.put(jsonObject);
+                //jsonObject = new JSONObject();
+                //jsonObject.putOpt("time", System.currentTimeMillis());
+                //jsonObject.putOpt("type", "NO_PHONE");
+                //jsonObject.putOpt("action_type", "XXX");
+                //jsonObject.putOpt("action_stack", "调用XXX获取XXX：\n" +
+                //        "...\n" +
+                //        "具体堆栈信息\n" +
+                //        "...\n" +
+                //        "com.lody.virtual.client.hook.delegate.InstrumentationDelegate.callActivityOnCreate(InstrumentationDelegate.java:244)\n" +
+                //        "com.lody.virtual.client.hook.delegate.AppInstrumentation.callActivityOnCreate(AppInstrumentation.java:99)\n" +
+                //        "android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2467)\n" +
+                //        "android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2574)\n" +
+                //        "android.app.ActivityThread.access$1100(ActivityThread.java:153)\n" +
+                //        "android.app.ActivityThread$H.handleMessage(ActivityThread.java:1425)\n" +
+                //        "android.os.Handler.dispatchMessage(Handler.java:102)\n" +
+                //        "android.os.Looper.loop(Looper.java:157)\n" +
+                //        "android.app.ActivityThread.main(ActivityThread.java:5684)\n" +
+                //        "java.lang.reflect.Method.invoke(Native Method)\n" +
+                //        "com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:746)\n" +
+                //        "com.android.internal.os.ZygoteInit.main(ZygoteInit.java:636)\n" +
+                //        "package:hb.devtools\n" +
+                //        "pid:14365\n" +
+                //        "thread id:1-main\n" +
+                //        "result:[PackageInfo{be9a1aa hb.xdevtools.app}, PackageInfo{537d19b de.robv.android.xposed.installer}, PackageInfo{383a938 com.android.sherlock}, PackageInfo{5ee4d11 hb.common.app}, PackageInfo{e182e76 hb.antirisk.app}, PackageInfo{3b7ec77 eu.faircode.xlua}, PackageInfo{a6620e4 com.amaze.filemanager}, PackageInfo{fd9a94d hb.xlocation.app}, PackageInfo{fd0bc02 com.xingjiabi.shengsheng}]");
+                //actionArray.put(jsonObject);
+                //
+                //jsonObject = new JSONObject();
+                //jsonObject.putOpt("time", System.currentTimeMillis());
+                //jsonObject.putOpt("type", "NO_STORAGE");
+                //jsonObject.putOpt("action_type", "XXX");
+                //jsonObject.putOpt("action_stack", "调用XXX获取XXX：\n" +
+                //        "...\n" +
+                //        "具体堆栈信息\n" +
+                //        "...\n" +
+                //        "com.lody.virtual.client.hook.delegate.InstrumentationDelegate.callActivityOnCreate(InstrumentationDelegate.java:244)\n" +
+                //        "com.lody.virtual.client.hook.delegate.AppInstrumentation.callActivityOnCreate(AppInstrumentation.java:99)\n" +
+                //        "android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2467)\n" +
+                //        "android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2574)\n" +
+                //        "android.app.ActivityThread.access$1100(ActivityThread.java:153)\n" +
+                //        "android.app.ActivityThread$H.handleMessage(ActivityThread.java:1425)\n" +
+                //        "android.os.Handler.dispatchMessage(Handler.java:102)\n" +
+                //        "android.os.Looper.loop(Looper.java:157)\n" +
+                //        "android.app.ActivityThread.main(ActivityThread.java:5684)\n" +
+                //        "java.lang.reflect.Method.invoke(Native Method)\n" +
+                //        "com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:746)\n" +
+                //        "com.android.internal.os.ZygoteInit.main(ZygoteInit.java:636)\n" +
+                //        "package:hb.devtools\n" +
+                //        "pid:14365\n" +
+                //        "thread id:1-main\n" +
+                //        "result:[PackageInfo{be9a1aa hb.xdevtools.app}, PackageInfo{537d19b de.robv.android.xposed.installer}, PackageInfo{383a938 com.android.sherlock}, PackageInfo{5ee4d11 hb.common.app}, PackageInfo{e182e76 hb.antirisk.app}, PackageInfo{3b7ec77 eu.faircode.xlua}, PackageInfo{a6620e4 com.amaze.filemanager}, PackageInfo{fd9a94d hb.xlocation.app}, PackageInfo{fd0bc02 com.xingjiabi.shengsheng}]");
+                //actionArray.put(jsonObject);
+                //
+                //jsonObject = new JSONObject();
+                //jsonObject.putOpt("time", System.currentTimeMillis());
+                //jsonObject.putOpt("type", "LIMIT");
+                //jsonObject.putOpt("action_type", "XXX");
+                //jsonObject.putOpt("action_stack", "调用XXX获取XXX：\n" +
+                //        "...\n" +
+                //        "具体堆栈信息\n" +
+                //        "...\n" +
+                //        "com.lody.virtual.client.hook.delegate.InstrumentationDelegate.callActivityOnCreate(InstrumentationDelegate.java:244)\n" +
+                //        "com.lody.virtual.client.hook.delegate.AppInstrumentation.callActivityOnCreate(AppInstrumentation.java:99)\n" +
+                //        "android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2467)\n" +
+                //        "android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2574)\n" +
+                //        "android.app.ActivityThread.access$1100(ActivityThread.java:153)\n" +
+                //        "android.app.ActivityThread$H.handleMessage(ActivityThread.java:1425)\n" +
+                //        "android.os.Handler.dispatchMessage(Handler.java:102)\n" +
+                //        "android.os.Looper.loop(Looper.java:157)\n" +
+                //        "android.app.ActivityThread.main(ActivityThread.java:5684)\n" +
+                //        "java.lang.reflect.Method.invoke(Native Method)\n" +
+                //        "com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:746)\n" +
+                //        "com.android.internal.os.ZygoteInit.main(ZygoteInit.java:636)\n" +
+                //        "package:hb.devtools\n" +
+                //        "pid:14365\n" +
+                //        "thread id:1-main\n" +
+                //        "result:[PackageInfo{be9a1aa hb.xdevtools.app}, PackageInfo{537d19b de.robv.android.xposed.installer}, PackageInfo{383a938 com.android.sherlock}, PackageInfo{5ee4d11 hb.common.app}, PackageInfo{e182e76 hb.antirisk.app}, PackageInfo{3b7ec77 eu.faircode.xlua}, PackageInfo{a6620e4 com.amaze.filemanager}, PackageInfo{fd9a94d hb.xlocation.app}, PackageInfo{fd0bc02 com.xingjiabi.shengsheng}]");
+                //actionArray.put(jsonObject);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

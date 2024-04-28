@@ -9,6 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity android:name="com.android.sherlock.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,11 +17,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name="com.android.sherlock.PrivacyCheckResultActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"></activity>
+
+        <activity
+            android:name="com.android.sherlock.PrivacyDetailsActivity"
+            android:exported="true" />
 
         <meta-data
             android:name="xposedmodule"
