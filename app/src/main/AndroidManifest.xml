@@ -18,7 +18,8 @@
         </activity>
 
         <activity
-            android:name="com.android.sherlock.PrivacyCheckResultActivity" >
+            android:name="com.android.sherlock.PrivacyCheckResultActivity"
+            android:exported="true">
         </activity>
 
         <meta-data
