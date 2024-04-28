@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import java.io.File;
+
 import hb.sherlock.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -21,5 +23,13 @@ public class MainActivity extends AppCompatActivity {
                 PrivacyCheckResultActivity.launch(v.getContext(), "/");
             }
         });
+
+        FloatingViewUtils.install(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        FloatingViewUtils.showFloat(this, new File(""));
     }
 }
