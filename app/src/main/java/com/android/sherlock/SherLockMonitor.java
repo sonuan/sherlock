@@ -735,23 +735,25 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
             lastTime = 0L;
         }
 
-        stringBuilder.append("package:");
+        stringBuilder.append("\n");
+        stringBuilder.append("\n");
+        stringBuilder.append("package：");
         stringBuilder.append(packageInfo);
         stringBuilder.append("\n");
-        stringBuilder.append("pid:");
+        stringBuilder.append("pid：");
         stringBuilder.append(Process.myPid());
         stringBuilder.append("\n");
-        stringBuilder.append("thread id:");
+        stringBuilder.append("thread id：");
         stringBuilder.append(Thread.currentThread().getId());
         stringBuilder.append("-");
         stringBuilder.append(Thread.currentThread().getName());
         stringBuilder.append("\n");
-        stringBuilder.append("result:");
+        stringBuilder.append("result：");
         stringBuilder.append(param.getResult());
         stringBuilder.append("\n");
         stringBuilder.append("\n");
 
-        String text = "调用" + method + "获取" + type + "：\n" + stringBuilder.toString();
+        String text = "调用" + method + "获取" + type + "：\n\n" + stringBuilder.toString();
         XposedBridge.log(text);
         putToFile(ActionLogType.DEFAULT, type, text);
 
