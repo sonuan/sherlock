@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.provider.Settings;
@@ -67,6 +68,8 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
      * 行为记录保存的路径
      */
     private File mCacheDir;
+
+    private Handler mHandler;
 
 
     public @interface Type {
@@ -694,6 +697,15 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
     private void getMethodStack(XC_MethodHook.MethodHookParam param, String method, @Type String type) {
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 
+        String methodName = param.method != null ? param.method.getName() : "";
+
+        runUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mContext, "海豹隐私合规检测\n调用了" + methodName + "方法", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         StringBuilder stringBuilder = new StringBuilder();
 
         boolean isHit = false;
@@ -701,7 +713,9 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         String packageInfo = "";
         for (StackTraceElement temp : stackTraceElements) {
             line = temp.toString();
-            if (line.contains("referenceBridge")) {
+            if (line.contains(methodName)) {
+                stringBuilder.append(line);
+                stringBuilder.append("\n");
                 isHit = true;
                 continue;
             }
@@ -749,9 +763,12 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
             Log.e("Xposed", msg);
             putToFile(ActionLogType.LIMIT, type, msg);
 
-            if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-                Toast.makeText(mContext, msg.substring(0, Math.min(400, msg.length())), Toast.LENGTH_LONG).show();
-            }
+            runUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(mContext, msg.substring(0, Math.min(400, msg.length())), Toast.LENGTH_LONG).show();
+                }
+            });
         }
         // 针对需要「电话」权限判断的，在没有权限通过时调用则打印日志并显示toast
         if (Type.IMEI.equals(type)
@@ -765,9 +782,12 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
                 Log.e("Xposed", msg);
                 putToFile(ActionLogType.NO_PHONE, type, msg);
 
-                if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-                    Toast.makeText(mContext, msg.substring(0, Math.min(400, msg.length())), Toast.LENGTH_LONG).show();
-                }
+                runUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(mContext, msg.substring(0, Math.min(400, msg.length())), Toast.LENGTH_LONG).show();
+                    }
+                });
             }
         }
     }
@@ -778,6 +798,7 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         if (isGranted) {
             return;
         }
+        String methodName = param.method != null ? param.method.getName() : "";
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -787,7 +808,9 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         String packageInfo = "";
         for (StackTraceElement temp : stackTraceElements) {
             line = temp.toString();
-            if (line.contains("referenceBridge")) {
+            if (line.contains(methodName)) {
+                stringBuilder.append(line);
+                stringBuilder.append("\n");
                 isHit = true;
                 continue;
             }
@@ -806,9 +829,13 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
         putToFile(ActionLogType.NO_STORAGE, type, msg);
 
 
-        if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-            Toast.makeText(mContext, msg.substring(0, 400), Toast.LENGTH_LONG).show();
-        }
+        runUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mContext, msg.substring(0, 400), Toast.LENGTH_LONG).show();
+            }
+        });
+
 
         stringBuilder.append("package:");
         stringBuilder.append(packageInfo);
@@ -862,5 +889,12 @@ public class SherLockMonitor  implements IXposedHookLoadPackage {
             e.printStackTrace();
         }
         ACache.get(mCacheDir).put("AppPrivacyAction", mActionArray);
+    }
+
+    private void runUiThread(Runnable runnable) {
+        if (mHandler == null) {
+            mHandler = new Handler(Looper.getMainLooper());
+        }
+        mHandler.post(runnable);
     }
 }
