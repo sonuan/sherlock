@@ -11,6 +11,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -32,6 +33,9 @@ import hb.sherlock.R;
  * 悬浮入口工具类
  */
 public class FloatingViewUtils {
+
+    private static final String TAG = "FloatingViewUtils";
+
     private Handler sHandler = new Handler();
     private Runnable sApplyRunnable;
     private Context context;
@@ -289,7 +293,7 @@ public class FloatingViewUtils {
 
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Toast.makeText(context, "无法跳转【隐私合规检测结果】页面！", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "无法跳转【隐私合规检测结果】页面. " + Log.getStackTraceString(e), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
